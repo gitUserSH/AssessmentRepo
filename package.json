@@ -1,24 +1,16 @@
 {
   "name": "SHNodeJSApplication",
-  "version": "0.1",
+  "version": "1.0.0",
   "description": "SH assessment Application. NodeJS ",
   "main": "server.js",
-  "scripts": {
+  "scripts":
+  {
     "start": "node server.js"
-    //npm run start
-    //node server.js
-    //node para1 para2 server.js
+
   },
-  "dependencies": {
-    "express": "~3.0.1",
-    /* 
-    "sequelize":"latest",
-    "q":"latest",
-    "tedious":"latest",
-    "angular":"latest",
-    "angular-ui-router": "~0.2.11",
-    "path":"latest",
-    "dat-gui":"latest"*/
-    
+
+  "dependencies":
+  {
+    "express": "~3.0.1"
   }
 }
