@@ -1,5 +1,5 @@
 {
-  "name": "SHNodeJSApplication",
+  "name": "SH app",
   "version": "1.0.0",
   "description": "SH assessment Application. NodeJS ",
   "main": "server.js",
@@ -7,7 +7,9 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^3.0.6"
+    "body-parser": "*",
+    "ejs": "^2.6.1",
+    "express": "*",
+    "express-validator": "^5.3.0"
   }
 }
