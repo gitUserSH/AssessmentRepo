@@ -7,12 +7,21 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
 var expressValidator = require('express-validator');
+var mysql      = require('mysql');
+
+//this is the file that impletments the routes
+var routes = require("./routes.js");
+
+
 
 //const http = require('http');
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 var app = express();
+
+
+
 
 
 /*
@@ -26,12 +35,11 @@ app.use(logger);
 //run command npm install in the terminal(while inside the sourcecode folder)
 // ejs Embedded JavaScript, template engine
 
-//view engine set as ejs
-app.set('view engine','ejs');
-//specify folder for view
-app.set('views',path.join(__dirname,'views'));
+
 
 //writing docu for body parser, middleware
+//The two lines tells express to accept both JSON and url encoded values
+// not using app.use(bodyParser()); because it involves bodyParser.multipart with security risks.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 
@@ -41,44 +49,18 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public'))) ;
 
 
-var usersArray = [
-  {
-    id : 1,
-    first_name: 'John',
-    last_name: 'Doe',
-    email: 'jd@gmail.com'
-  },
-  {
-    id : 2,
-    first_name: 'bob',
-    last_name: 'qqq',
-    email: 'bbqq@gmail.com'
-  }
-]
 
-//homepage
-app.get('/',function(req,res){
+routes(app);
 
-  //res.send('Home page. (Express server)');
-  //pass in index
-  res.render('index',{
 
-    //var on the left is from the ejs file
-    title: 'Customers',
-    users: usersArray
-  });
-});
 
-app.post('/users/add',function(req,res){
+app.get('/myTestPage',function(req,res){
   //console.log(req.body.first_name);
-  var userObj = {
-    first_name : req.body.first_name,
-    last_name : req.body.last_name
-  }
 
-  console.log(userObj);
+  console.log(routes.testStringInroute);
+
+  res.send(routes.testStringInroute);
 });
-
 
 //server listen fn
 app.listen(port,function(){
@@ -86,13 +68,6 @@ app.listen(port,function(){
 });
 
 //console.log(`Server created`);
-
-
-
-
-
-
-
 
 
 
@@ -107,6 +82,12 @@ const server = http.createServer((req, res) => {
 
 });
 
+
+var logger =function(req,res,next){
+  console.log('Logging');
+  next();
+}
+app.use(logger);
 
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
