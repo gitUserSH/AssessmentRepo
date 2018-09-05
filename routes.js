@@ -6,30 +6,7 @@ const fetch = require('node-fetch');//for
 var isSchoolDBCreated = false;
 var isTeacherTableCreated = false;
 
-var emptyDBConnection = mysql.createConnection({
-    host     : 'localhost',
-    port     :' 3306',
-    user     : 'root',
-    password : '',
-    //database : 'School'
-});
-emptyDBConnection.connect( (err) =>{
-    if(err){
-       console.log('emptyDBConnection connect() err');
-       console.log(err);
-       throw err;
-    
-    }
-    console.log('Mysql DB(empty) connected...');
-});
-
-var DBConnection = mysql.createConnection({
-     host     : 'localhost',
-     port     :' 3306',
-     user     : 'root',
-     password : '',
-     database : 'School'
-});
+var dbManager = require("./DatabaseManager.js");
 
 var testStringInroute = 'mystring';
 //implement the appRouter function, basically just takes in the app(express) obj and use it to call the routing functions 
@@ -80,26 +57,37 @@ var appRouter = function (app) {
         console.log(req.body.students);
         //console.log(req.body.students.find(1));
         //res.sendStatus(200);// equivalent to res.status(200).send('OK')  //res.status(200);
-        
+        var studentsArray = req.body.students;
+       // var jsonobj = req.body.students;
+        console.log("Logging Students Array");
+        console.log("req.body.students Array[0] : "+req.body.students[0]);
+        console.log("req.body.students Array[1] : "+req.body.students[1]);
+        console.log("Students Array[0] : "+studentsArray[0]);
+        console.log("Students Array[1] : "+studentsArray[1]);
+        console.log("Students Array[2] : "+studentsArray[2]);
+        console.log("req.body.students Array[0] : "+req.body.teacher.length);
         res.status(204);//.send({ message: 'Welcome to our restful API' });
 
         res.send('testpost page. (Express server)');
     });
+
+    
     //this rotue creates the db when theres no such db
     app.get('/createDB',function(req,res) {
         console.log('createDB Page loaded');
         
         if(isSchoolDBCreated == false) {
-            //res.send('CreateDB page.');
-            let sql = 'CREATE DATABASE School'
-            emptyDBConnection.query(sql, (err, result)=> {
-                if(err){
-                    throw err;
-                }
-                console.log(result);
+            var result = dbManager.createDatabase();
+            console.log('createDB result : '+result);
+            if(result === 1) {
                 res.send('DB created...');
-            });
-            
+            }
+            else{
+                //do err message
+                res.send('Error creating DB....');
+            }
+
+
             isSchoolDBCreated = true;
         }//end if db not created yet
         else
@@ -115,38 +103,16 @@ var appRouter = function (app) {
         
         if(isTeacherTableCreated == false) {
 
-            DBConnection.connect( (err) =>{
-                if(err){
-                    console.log('DBConnection() connect err');
-                    console.log(err);
-                    throw err;
-                }
-                console.log('Mysql DB(school) connected...');
-            });
-            //res.send('CreateDB page.');
-            var sql = 'CREATE TABLE Teachers(Email VARCHAR(255) NOT NULL, PRIMARY KEY (Email))'
-            DBConnection.query(sql, (err, result)=> {
-                if(err){
-                    throw err;
-                }
-                console.log(result);
-                console.log('SQL Teachers Table created...');
-                
-            });
-            
-            sql = 'CREATE TABLE Students(Email VARCHAR(255) NOT NULL, RegisteredTeacherEmail VARCHAR(255) ,Suspended BOOL NOT NULL, PRIMARY KEY (Email))'
-            DBConnection.query(sql, (err, result)=> {
-                if(err){
-                    throw err;
-                }
-                console.log(result);
-                console.log('SQL Students Table created...');
-                
-            });
-
-
-           
-            res.send('SQL Teacher,Student Tables created...');
+            var result = dbManager.createTables();
+            console.log('createSQLTables result : '+ result);
+            if(result === 1) {
+                res.send('SQL Teacher,Student Tables created...');
+            }
+            else{
+                //do err message
+                res.send('Error creating Tables....');
+            }
+        
         }
         else
         {
@@ -157,87 +123,113 @@ var appRouter = function (app) {
     app.get('/insertSQLdummyValues',function(req,res) {
         console.log('insertSQLdummyValues Page loaded');
         
-
-        var sql = "INSERT INTO Teachers ( Email) VALUES ( 'TeacherJasmine@gmail.com'), ( 'TeacherKen@gmail.com'),  ( 'TeacherJim@gmail.com')";
-        DBConnection.query(sql, (err, result)=> {
-            if(err){
-                throw err;
-            }
-            console.log(result);
-            console.log('SQL Teacher Table VALUES INSERTED...');
-        });
-
-        sql = "INSERT INTO Students ( Email,RegisteredTeacherEmail, Suspended) VALUES ( 'StudentA@gmail.com', null ,false), ( 'StudentB@gmail.com', 'TeacherKen@gmail.com', false),  ( 'StudentC@gmail.com',null, true)";
-        DBConnection.query(sql, (err, result)=> {
-            if(err){
-                throw err;
-            }
-            console.log(result);
-            console.log('SQL Students Table VALUES INSERTED...');
-        });
-        res.send('Dummy Values inserted...');
+        var result = dbManager.insertDummyValues();
+        console.log('insertSQLdummyValues result : '+ result);
+        if(result === 1) {
+            res.send('Dummy Values inserted...');
+        }
+        else{
+            //do err message
+            res.send('Error inserting dummy values....');
+        }
+        
+        
     });//end /insertSQLdummyValues
 
-
-    app.post('/users/add',function(req,res){
-        //console.log(req.body.first_name);
-        var userObj = {
-          first_name : req.body.first_name,
-          last_name : req.body.last_name
-        }
-      
-        console.log(userObj);
-    });
-
-
-
-    
-
-    function postJson (path, data) {
-
-        return fetch(path, {
-            method: 'POST',
-            headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-    }
-    app.get('/postJsonTest',function(req,res){
-        console.log('running postJsonTest');
-    
-        var jsontoSend = [
-            {
-                name:'jeff',
-                pw:'qweqwe'
-            }
-        ]
-        
-        //postJson('localhost:3000/receiveJson', jsontoSend);
-
-        req.url = '/receiveJson';
-        req.body = JSON.stringify(jsontoSend); 
-        //req.method = 'POST' ;
-
-        // below is the code to handle the "forward".
-        // if we want to change the method: req.method = 'POST'        
-        return app._router.handle(req, res);
-
-
-
-        //postJson('/createUser', { username, password })
-        //postJson('/receiveJson', { '', '' });
-    });
-
-    app.get('/receiveJson',function(req,res){
-        console.log('running receiveJson');
+    // API 1 : given student/s and a teacher, reg the students to the teacher
+    app.post('/api/register',function(req,res){
+        console.log('/api/register page loaded');
+        console.log(req.header);
         console.log(req.body);
-        console.log(req.body.name);
-        res.send(req.body.name);
+        console.log(req.body.students);
+  
+        var teacherEmail = req.body.teacher;
+        var studentsArray = req.body.students;
+
+        console.log("Logging Students Array");
+        console.log("req.body.students Array[0] : "+req.body.students[0]);
+        console.log("req.body.students Array[1] : "+req.body.students[1]);
+        console.log("Students Array[0] : "+studentsArray[0]);
+        console.log("Students Array[1] : "+studentsArray[1]);
+        console.log("Students Array[2] : "+studentsArray[2]);
+        console.log("req.body.teacher.length : "+req.body.teacher.length);
+
+        //if theres input error
+        if(studentsArray.length === 0 || teacherEmail.length === 0)
+        {
+            res.status(400);
+            var jsonErrorMessage;
+            if(studentsArray.length === 0)
+            {
+                jsonErrorMessage = jsonErrorMessageGenerator('No students were inputed');
+            }
+            else
+            {
+                jsonErrorMessage = jsonErrorMessageGenerator('Teacher Email is empty');
+            }
+            res.json(jsonErrorMessage);
+        }
         
+        var result = dbManager.registerStudents(teacherEmail,studentsArray);
+        if(result !=1 ) {
+            res.status(500); 
+            var jsonErrorMessage = jsonErrorMessageGenerator('Error while updating Students with registed teacher');
+            res.json(jsonErrorMessage);
+        }
+
+
+        res.status(204);
+        res.send('/api/register is successful');
+
     });
 
+
+
+    // API 3 : given a specified student suspend him/her
+    app.post('/api/suspend',function(req,res){
+        console.log('/api/suspend page loaded');
+      
+        var student = req.body.student;
+
+        //if theres input error
+        if(student.length === 0)
+        {
+            res.status(400);
+            var jsonErrorMessage = jsonErrorMessageGenerator('Student Email is empty');
+            res.json(jsonErrorMessage);
+        }
+            
+        var result = dbManager.suspendStudent(student);
+        if(result !=1 ) {
+            res.status(500); 
+            var jsonErrorMessage = jsonErrorMessageGenerator('Error while suspending student');
+            res.json(jsonErrorMessage);
+        }
+        res.status(204);
+        res.send('/api/suspend is successful');
+    });
+  // API 2 : given teachers, retrive list of common students
+  app.get('/api/commonstudents',function(req,res){
+    console.log('/api/commonstudents page loaded');
+    console.log(req.param.teacher);
+    console.log(req.param);
+    console.log(req.query);
+    console.log(req.query.teacher);
+    var teacherArray = req.query.teacher;
+    console.log(teacherArray[0]);
+    console.log(teacherArray[1]);
+    //res.status(204);
+    res.send('/api/commonstudents is successful');
+});
+    
+
+    function jsonErrorMessageGenerator (messageString) {
+        var jsontoSend = { "message": messageString }
+
+        var jsonReturnobj = JSON.stringify(jsontoSend);
+
+        return jsonReturnobj;
+    }
 }
 
 //exports this file function

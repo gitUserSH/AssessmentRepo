@@ -61,6 +61,70 @@ app.get('/myTestPage',function(req,res){
 
   res.send(routes.testStringInroute);
 });
+app.post('/users/add',function(req,res){
+  //console.log(req.body.first_name);
+  var userObj = {
+    first_name : req.body.first_name,
+    last_name : req.body.last_name
+  }
+
+  console.log(userObj);
+});
+
+
+
+
+
+function postJson (path, data) {
+
+  return fetch(path, {
+      method: 'POST',
+      headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+  })
+}
+app.get('/postJsonTest',function(req,res){
+  console.log('running postJsonTest');
+
+  var jsontoSend = [
+      {
+          name:'jeff',
+          pw:'qweqwe'
+      }
+  ]
+  
+  //postJson('localhost:3000/receiveJson', jsontoSend);
+
+  req.url = '/receiveJson';
+  req.body = JSON.stringify(jsontoSend); 
+  //req.method = 'POST' ;
+
+  // below is the code to handle the "forward".
+  // if we want to change the method: req.method = 'POST'        
+  return app._router.handle(req, res);
+
+
+
+  //postJson('/createUser', { username, password })
+  //postJson('/receiveJson', { '', '' });
+});
+
+app.get('/receiveJson',function(req,res){
+  console.log('running receiveJson');
+  console.log(req.body);
+  console.log(req.body.name);
+  res.send(req.body.name);
+  
+});
+
+
+
+
+
+
 
 //server listen fn
 app.listen(port,function(){
