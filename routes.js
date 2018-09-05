@@ -1,6 +1,8 @@
 var path = require('path');
 var mysql      = require('mysql');
 
+const fetch = require('node-fetch');//for
+
 var isSchoolDBCreated = false;
 var isTeacherTableCreated = false;
 
@@ -54,18 +56,35 @@ var appRouter = function (app) {
       ]
     //homepage
     app.get('/',function(req,res){
-        res.status(200);
-       //res.status(200).send({ message: 'Welcome to our restful API' });
+        console.log('HOME Page loaded');
+        console.log(req.header);
+        console.log(req.body);
+        //res.sendStatus(200);// equivalent to res.status(200).send('OK')  //res.status(200);
+        
         //res.setHeader('Content-Type', 'text/plain');
         //res.send('Home page. (Express server)');
         //pass in index
+        
         res.render('index',{
             //var on the left is from the ejs file
             title: 'Customers',
             users: usersArray
         });
+        res.status(204);//).send({ message: 'Welcome to our restful API' });
     });
   
+    app.post('/testpost',function(req,res){
+        console.log('testpost loaded');
+        console.log(req.header);
+        console.log(req.body);
+        console.log(req.body.students);
+        //console.log(req.body.students.find(1));
+        //res.sendStatus(200);// equivalent to res.status(200).send('OK')  //res.status(200);
+        
+        res.status(204);//.send({ message: 'Welcome to our restful API' });
+
+        res.send('testpost page. (Express server)');
+    });
     //this rotue creates the db when theres no such db
     app.get('/createDB',function(req,res) {
         console.log('createDB Page loaded');
@@ -91,8 +110,8 @@ var appRouter = function (app) {
     
     //this route creates a Teacher table in the db
     //call ohly after the db is created
-    app.get('/createSQLTableTeacher',function(req,res) {
-        console.log('createSQLTableTeacher Page loaded');
+    app.get('/createSQLTables',function(req,res) {
+        console.log('createSQLTables Page loaded');
         
         if(isTeacherTableCreated == false) {
 
@@ -105,20 +124,59 @@ var appRouter = function (app) {
                 console.log('Mysql DB(school) connected...');
             });
             //res.send('CreateDB page.');
-            let sql = 'CREATE TABLE Teacher(id int AUTO_INCREMENT, TeacherName VARCHAR(255), Email VARCHAR(255),  PRIMARY KEY (id))'
+            var sql = 'CREATE TABLE Teachers(Email VARCHAR(255) NOT NULL, PRIMARY KEY (Email))'
             DBConnection.query(sql, (err, result)=> {
                 if(err){
                     throw err;
                 }
                 console.log(result);
-                res.send('SQL Teacher Table created...');
+                console.log('SQL Teachers Table created...');
+                
             });
+            
+            sql = 'CREATE TABLE Students(Email VARCHAR(255) NOT NULL, RegisteredTeacherEmail VARCHAR(255) ,Suspended BOOL NOT NULL, PRIMARY KEY (Email))'
+            DBConnection.query(sql, (err, result)=> {
+                if(err){
+                    throw err;
+                }
+                console.log(result);
+                console.log('SQL Students Table created...');
+                
+            });
+
+
+           
+            res.send('SQL Teacher,Student Tables created...');
         }
         else
         {
-            res.send('Teacher Table Already exists...');
+            res.send('Tables Already exists...');
         }
-    });
+    });//end /createSQLTables
+
+    app.get('/insertSQLdummyValues',function(req,res) {
+        console.log('insertSQLdummyValues Page loaded');
+        
+
+        var sql = "INSERT INTO Teachers ( Email) VALUES ( 'TeacherJasmine@gmail.com'), ( 'TeacherKen@gmail.com'),  ( 'TeacherJim@gmail.com')";
+        DBConnection.query(sql, (err, result)=> {
+            if(err){
+                throw err;
+            }
+            console.log(result);
+            console.log('SQL Teacher Table VALUES INSERTED...');
+        });
+
+        sql = "INSERT INTO Students ( Email,RegisteredTeacherEmail, Suspended) VALUES ( 'StudentA@gmail.com', null ,false), ( 'StudentB@gmail.com', 'TeacherKen@gmail.com', false),  ( 'StudentC@gmail.com',null, true)";
+        DBConnection.query(sql, (err, result)=> {
+            if(err){
+                throw err;
+            }
+            console.log(result);
+            console.log('SQL Students Table VALUES INSERTED...');
+        });
+        res.send('Dummy Values inserted...');
+    });//end /insertSQLdummyValues
 
 
     app.post('/users/add',function(req,res){
@@ -130,6 +188,56 @@ var appRouter = function (app) {
       
         console.log(userObj);
     });
+
+
+
+    
+
+    function postJson (path, data) {
+
+        return fetch(path, {
+            method: 'POST',
+            headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+    }
+    app.get('/postJsonTest',function(req,res){
+        console.log('running postJsonTest');
+    
+        var jsontoSend = [
+            {
+                name:'jeff',
+                pw:'qweqwe'
+            }
+        ]
+        
+        //postJson('localhost:3000/receiveJson', jsontoSend);
+
+        req.url = '/receiveJson';
+        req.body = JSON.stringify(jsontoSend); 
+        //req.method = 'POST' ;
+
+        // below is the code to handle the "forward".
+        // if we want to change the method: req.method = 'POST'        
+        return app._router.handle(req, res);
+
+
+
+        //postJson('/createUser', { username, password })
+        //postJson('/receiveJson', { '', '' });
+    });
+
+    app.get('/receiveJson',function(req,res){
+        console.log('running receiveJson');
+        console.log(req.body);
+        console.log(req.body.name);
+        res.send(req.body.name);
+        
+    });
+
 }
 
 //exports this file function
