@@ -208,20 +208,163 @@ var appRouter = function (app) {
         res.status(204);
         res.send('/api/suspend is successful');
     });
-  // API 2 : given teachers, retrive list of common students
-  app.get('/api/commonstudents',function(req,res){
-    console.log('/api/commonstudents page loaded');
-    console.log(req.param.teacher);
-    console.log(req.param);
-    console.log(req.query);
-    console.log(req.query.teacher);
-    var teacherArray = req.query.teacher;
-    console.log(teacherArray[0]);
-    console.log(teacherArray[1]);
-    //res.status(204);
-    res.send('/api/commonstudents is successful');
-});
+    // API 2 : given teachers, retrive list of common students
+    app.get('/api/commonstudents',function(req,res) {
+        console.log('/api/commonstudents page loaded');
+        /*
+        console.log(req.param.teacher);
+        console.log(req.param);
+        console.log(req.query);
+        console.log(req.query.teacher);
+        
+        console.log(teacherArray[0]);
+        console.log(teacherArray[1]);
+        //localhost:3000/api/commonstudents?teacher=TeacherJasmine%40gmail.com&teacher=TeacherKen%40gmail.com
+        */
+        var teacherArray = req.query.teacher;
+
+        //if theres input error
+        if(teacherArray.length === 0)
+        {
+            res.status(400);
+            var jsonErrorMessage = jsonErrorMessageGenerator('Teachers Array is empty');
+            res.json(jsonErrorMessage);
+        }
+        var returnStringObj = {} // empty Object
+        var key = "students";
+        returnStringObj[key] = []; // empty Array, which you can push() values into
+
+        //var commonStudentsArray = [];
+
+
+        dbManager.retrieveCommonStudents(teacherArray,function (err, result) {
+            if (err) {
+                res.status(500); 
+                var jsonErrorMessage = jsonErrorMessageGenerator('Error while retriving common student');
+                res.json(jsonErrorMessage);
+            }
+            else {
+                var rows = JSON.parse(JSON.stringify(result));
+                //console.log(result);
+                //console.log(rows);
+
+                for(var i = 0; i < rows.length ; i++ ){     
+                    console.log("row i: "+rows[i].StudentEmail);
+                    returnStringObj[key].push(rows[i].StudentEmail);
+                
+                }
+            }
+        
+            console.log("returnStringObj "+returnStringObj[key]);
+            var jsonReturnObject = JSON.stringify(returnStringObj);
+            console.log("jsonReturnObject: " + jsonReturnObject);
+            res.json(jsonReturnObject);
+        });
+
+    });
     
+
+
+    // API 4 : given a specified student suspend him/her
+    app.post('/api/retrievefornotifications',function(req,res){
+        console.log('/api/retrievefornotifications page loaded');
+      
+        var teacher = req.body.teacher;
+        var notification = req.body.notification;
+        if(teacher.length === 0)
+        {
+            res.status(400);
+            var jsonErrorMessage = jsonErrorMessageGenerator('Teacher Email is blank');
+            res.json(jsonErrorMessage);
+        }
+   
+        var arrayOfMentionedStudents = findEmailAddresses(notification);
+        if(arrayOfMentionedStudents === null)
+        {
+            arrayOfMentionedStudents =[];
+        }
+        console.log('arrayOfMentionedStudents ' + arrayOfMentionedStudents);
+
+        var returnStringObj = {} // empty Object
+        var key = "recipients";
+        returnStringObj[key] = []; // empty Array, which you can push() values into
+
+        //var commonStudentsArray = [];
+
+
+        dbManager.retrieveForNotifications(teacher, arrayOfMentionedStudents ,function (err, result) {
+            if (err) {
+                res.status(500); 
+                var jsonErrorMessage = jsonErrorMessageGenerator('Error while retriving students for notification');
+                res.json(jsonErrorMessage);
+                throw err;
+            }
+            else {
+                var rows = JSON.parse(JSON.stringify(result));
+                console.log(rows);
+                //console.log(rows);
+
+                for(var i = 0; i < rows.length ; i++ ){     
+                    console.log("row i: "+rows[i].Email);
+                    console.log("row i: "+rows[i]);
+                    returnStringObj[key].push(rows[i].Email);
+                
+                }
+                res.status(200); 
+                console.log("returnStringObj "+returnStringObj[key]);
+                var jsonReturnObject = JSON.stringify(returnStringObj);
+                console.log("jsonReturnObject: " + jsonReturnObject);
+                res.json(jsonReturnObject);
+
+            }
+        
+            
+        });
+
+
+        /*
+        dbManagerDBConnection.query(sql, data, (err, results) => {
+            if (err){
+                throw err;
+            }
+            var rows = JSON.parse(JSON.stringify(result));
+            //console.log(result);
+            //console.log(rows);
+
+            //loop through
+            for(var i = 0; i < rows.length ; i++ ){     
+                console.log("row i: "+rows[i].StudentEmail);
+               if(!arrayOfMentionedStudents.includes(rows[i].StudentEmail) )
+                {
+                    arrayOfMentionedStudents.push(rows[i].StudentEmail);
+                }
+            }
+
+            //now we have array of students that @mentioned || registered
+        });
+        */
+        //res.status(204);
+        //res.send('/api/retrievefornotifications is successful');
+    });
+
+    function findEmailAddresses(StrObj) {
+        var separateEmailsBy = ", ";
+        var email = "<none>"; // if no match, use this
+        
+        var emailsArray = StrObj.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+        
+        return  emailsArray;
+        /*
+        if (emailsArray) {
+            email = "";
+            for (var i = 0; i < emailsArray.length; i++) {
+                if (i != 0) email += separateEmailsBy;
+                email += emailsArray[i];
+            }
+        }
+        return email;
+        */
+    }
 
     function jsonErrorMessageGenerator (messageString) {
         var jsontoSend = { "message": messageString }
