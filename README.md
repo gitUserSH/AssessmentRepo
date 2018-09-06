@@ -42,14 +42,16 @@ Run the following URLs to create DB and tables
 
 
 * [http://localhost:3000/createDB] (http://localhost:3000/createDB) - Creates the DB
-* [http://localhost:3000/createSQLTables](http://localhost:3000/createSQLTables) - Creates the Tables (3 in total)
-* [(optional)http://localhost:3000/insertSQLdummyValues](http://localhost:3000/insertSQLdummyValues) - inserts dummy values
+* [http://localhost:3000/createSQLTables] (http://localhost:3000/createSQLTables) - Creates the Tables (3 in total)
+* [(optional)http://localhost:3000/insertSQLdummyValues] (http://localhost:3000/insertSQLdummyValues) - inserts dummy values
 
 ### APIs
 
 These are the links to the 4 APIs
 
-* [http://localhost:3000/api/register] (http://localhost:3000/api/register) - Creates the DB
-* [http://localhost:3000/commonstudents](http://localhost:3000/commonstudents) - Creates the Tables (3 in total)
-* [(optional)http://localhost:3000/insertSQLdummyValues](http://localhost:3000/insertSQLdummyValues) - inserts dummy values
+* [http://localhost:3000/api/register] (http://localhost:3000/api/register) - Registers one or more students to a teacher
+* [http://localhost:3000/commonstudents] (http://localhost:3000/commonstudents) - Given teacher/s, retrieve list of common students
+* [http://localhost:3000/suspend] (http://localhost:3000/suspend) - Suspend a Student
+* [http://localhost:3000/retrievefornotifications] (http://localhost:3000/retrievefornotifications) -  Retrieve a list of students who can receive a given notification.
+
 
