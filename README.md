@@ -5,12 +5,8 @@
 ### Prerequisites
 
 Nodejs: Download from https://nodejs.org/en/
-Msql: The client is required, I am using xampp https://www.apachefriends.org/index.html
 
-
-```
-Give examples
-```
+MySql: The client is required, I am using xampp https://www.apachefriends.org/index.html
 
 ### Installing/Setting up
 
@@ -27,11 +23,11 @@ For Mysql if you are using Xampp just run it and start both the 'Apache' and 'My
 Also make sure that your Mysql settings are as follows:
 
 ```
-port     :'3306',
+port     : '3306',
 user     : 'root',
 password : '',
 ```
-make sure the port is 3306, and theres a user account 'root' and the password is empty
+Make sure the port is 3306, and theres a user account 'root' and the password is empty
 
 End with an example of getting some data out of the system or using it for a little demo
 
@@ -40,6 +36,7 @@ End with an example of getting some data out of the system or using it for a lit
 If this is the first time running the MySql, and database is empty.
 Run the following URLs to create DB and tables
 
+*note change the ports accordingly if environmental variable(port) is being used.
 
 * [http://localhost:3000/createDB] (http://localhost:3000/createDB) - Creates the DB
 * [http://localhost:3000/createSQLTables] (http://localhost:3000/createSQLTables) - Creates the Tables (3 in total)
@@ -48,6 +45,8 @@ Run the following URLs to create DB and tables
 ### APIs
 
 These are the links to the 4 APIs
+
+*note change the ports accordingly if environmental variable(port) is being used.
 
 * [http://localhost:3000/api/register] (http://localhost:3000/api/register) - Registers one or more students to a teacher
 * [http://localhost:3000/commonstudents] (http://localhost:3000/commonstudents) - Given teacher/s, retrieve list of common students
