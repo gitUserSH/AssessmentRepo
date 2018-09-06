@@ -230,12 +230,9 @@ module.exports.retrieveForNotifications =  function (teacherEmail, studentArray,
         sql = "SELECT * FROM `students` as a \n LEFT OUTER JOIN `studentsregisteredtoteachers` as b on a.Email = b.StudentEmail \n WHERE (b.RegisteredTeacherEmail = '"  + teacherEmail + "' \n OR a.Email = '"+studentArray[0] + "'";
     
         for (i = 1; i < studentArray.length; i++) {
-            console.log('  looping ');
-            //sql = sql + ", RegisteredTeacherEmail = '"+teachersArray[i] +"'" ;
             sql = sql + "OR a.Email = '"+studentArray[i] +"'" ;
         }
         
-        //sql = " SELECT * FROM students";
     }
     else // no student @mentioned 
     {
@@ -260,7 +257,6 @@ module.exports.retrieveForNotifications =  function (teacherEmail, studentArray,
             callback(null, retrieveForNotificationsResult);
             console.log("retrieveForNotificationsResult: "+retrieveForNotificationsResult);
         }
-
     });
     console.log('  retrieveForNotifications function completed.');
     return 1;

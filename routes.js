@@ -139,20 +139,9 @@ var appRouter = function (app) {
     // API 1 : given student/s and a teacher, reg the students to the teacher
     app.post('/api/register',function(req,res){
         console.log('/api/register page loaded');
-        console.log(req.header);
-        console.log(req.body);
-        console.log(req.body.students);
-  
+
         var teacherEmail = req.body.teacher;
         var studentsArray = req.body.students;
-
-        console.log("Logging Students Array");
-        console.log("req.body.students Array[0] : "+req.body.students[0]);
-        console.log("req.body.students Array[1] : "+req.body.students[1]);
-        console.log("Students Array[0] : "+studentsArray[0]);
-        console.log("Students Array[1] : "+studentsArray[1]);
-        console.log("Students Array[2] : "+studentsArray[2]);
-        console.log("req.body.teacher.length : "+req.body.teacher.length);
 
         //if theres input error
         if(studentsArray.length === 0 || teacherEmail.length === 0)
@@ -211,16 +200,7 @@ var appRouter = function (app) {
     // API 2 : given teachers, retrive list of common students
     app.get('/api/commonstudents',function(req,res) {
         console.log('/api/commonstudents page loaded');
-        /*
-        console.log(req.param.teacher);
-        console.log(req.param);
-        console.log(req.query);
-        console.log(req.query.teacher);
-        
-        console.log(teacherArray[0]);
-        console.log(teacherArray[1]);
-        //localhost:3000/api/commonstudents?teacher=TeacherJasmine%40gmail.com&teacher=TeacherKen%40gmail.com
-        */
+
         var teacherArray = req.query.teacher;
 
         //if theres input error
@@ -245,17 +225,12 @@ var appRouter = function (app) {
             }
             else {
                 var rows = JSON.parse(JSON.stringify(result));
-                //console.log(result);
-                //console.log(rows);
-
                 for(var i = 0; i < rows.length ; i++ ){     
-                    console.log("row i: "+rows[i].StudentEmail);
                     returnStringObj[key].push(rows[i].StudentEmail);
                 
                 }
             }
-        
-            console.log("returnStringObj "+returnStringObj[key]);
+    
             var jsonReturnObject = JSON.stringify(returnStringObj);
             console.log("jsonReturnObject: " + jsonReturnObject);
             res.json(jsonReturnObject);
@@ -266,7 +241,7 @@ var appRouter = function (app) {
 
 
     // API 4 : given a specified student suspend him/her
-    app.post('/api/retrievefornotifications',function(req,res){
+    app.post('/api/retrievefornotifications',function(req,res) {
         console.log('/api/retrievefornotifications page loaded');
       
         var teacher = req.body.teacher;
@@ -289,8 +264,6 @@ var appRouter = function (app) {
         var key = "recipients";
         returnStringObj[key] = []; // empty Array, which you can push() values into
 
-        //var commonStudentsArray = [];
-
 
         dbManager.retrieveForNotifications(teacher, arrayOfMentionedStudents ,function (err, result) {
             if (err) {
@@ -301,17 +274,11 @@ var appRouter = function (app) {
             }
             else {
                 var rows = JSON.parse(JSON.stringify(result));
-                console.log(rows);
-                //console.log(rows);
-
+  
                 for(var i = 0; i < rows.length ; i++ ){     
-                    console.log("row i: "+rows[i].Email);
-                    console.log("row i: "+rows[i]);
                     returnStringObj[key].push(rows[i].Email);
-                
                 }
                 res.status(200); 
-                console.log("returnStringObj "+returnStringObj[key]);
                 var jsonReturnObject = JSON.stringify(returnStringObj);
                 console.log("jsonReturnObject: " + jsonReturnObject);
                 res.json(jsonReturnObject);
