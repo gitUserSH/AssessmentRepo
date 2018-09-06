@@ -29,7 +29,6 @@ password : '',
 ```
 Make sure the port is 3306, and theres a user account 'root' and the password is empty
 
-End with an example of getting some data out of the system or using it for a little demo
 
 ### Initializing
 
